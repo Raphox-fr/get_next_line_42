@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: raphox <raphox@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rafaria <rafaria@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/18 15:17:35 by raphox            #+#    #+#             */
-/*   Updated: 2024/01/11 19:59:17 by raphox           ###   ########.fr       */
+/*   Updated: 2024/01/15 16:11:32 by rafaria          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,15 @@ char	*get_all_line(char *line, int fd)
 {
     char *buffer;
     int curseur;
+    int size;
 
     curseur = 1;
+    size = ft_strchr(line);
     buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
     if (!buffer)
         return (NULL);
 
-    while(!ft_strchr(line, '\n') && curseur != 0)
+    while(size > 0 && curseur != 0)
     {
         curseur = read(fd, buffer, BUFFER_SIZE);
         if (curseur == -1)
@@ -32,6 +34,7 @@ char	*get_all_line(char *line, int fd)
         }
         buffer[curseur] = '\0';
         line = ft_strjoin(line, buffer);
+        size--;
     }
     free(buffer);
     return (line);
@@ -46,8 +49,10 @@ char    *get_res_line(char *line)
     if (!line[i])
         return (NULL);
     while (line[i] != '\n' && line[i])
-        i++;    
-    res_line = malloc((ft_strlen_perso(line) - i + 2) * sizeof(char));
+    {
+		i++;   
+    }    
+    res_line = malloc((ft_strlen(line) - i + 2) * sizeof(char));
     i = 0;
     while (line[i] != '\n' && line[i])
     {
@@ -73,10 +78,9 @@ char    *get_leftover_line(char *line)
     i = 0;
     while (line[i] != '\n' && line[i])
         i++;
-    stock_leftover = malloc((ft_strlen_perso(line) - i + 1) * (sizeof(char)));
+    stock_leftover = malloc((ft_strlen(line) - i + 1) * (sizeof(char)));
     if (!stock_leftover)
         return(NULL);
-
     i++;
     while(line[i])
     {
@@ -97,35 +101,36 @@ char	*get_next_line(int fd)
     line = get_all_line(line, fd);
 
     resleft_line = get_res_line(line);
-     
+    if (!resleft_line)
+        return (NULL);
 	line = get_leftover_line(line);
     return (line);
 }
 
-// int	main(void)
-// {
-// 	int fd;
-// 	char *next_line;
-// 	int count;
+int	main(void)
+{
+	int fd;
+	char *next_line;
+	int count;
 
-// 	count = 0;
-// 	fd = open("example.txt", O_RDONLY);
-// 	if (fd == -1)
-// 	{
-// 		printf("Error opening file");
-// 		return (1);
-// 	}
-// 	while (1)
-// 	{
-// 		next_line = get_next_line(fd);
-// 		if (next_line == NULL)
-// 			break ;
-// 		count++;
-// 		printf("[%d]:%s", count, next_line);
-// 		free(next_line);
-// 		next_line = NULL;
-// 	}
-// 	printf("\n");
-// 	close(fd);
-// 	return (0);
-// }
+	count = 0;
+	fd = open("example.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Error opening file");
+		return (1);
+	}
+	while (1)
+	{
+		next_line = get_next_line(fd);
+		if (next_line == NULL)
+			break ;
+		count++;
+		printf("[%d]:%s", count, next_line);
+		free(next_line);
+		next_line = NULL;
+	}
+	printf("\n");
+	close(fd);
+	return (0);
+}
